@@ -28,16 +28,50 @@ export function Dashboard({ initialLotes }: { initialLotes: Lote[] }) {
   const completado = porEstado.find((e) => e.estado === "Completado");
   const enProgreso = porEstado.find((e) => e.estado === "En Progreso");
 
-  function handleSave(values: Omit<Lote, "id">) {
-    setLotes((current) => {
+  async function handleSave(values: Omit<Lote, "id">) {
+    try {
       if (form?.mode === "edit") {
-        return current.map((l) =>
-          l.id === form.lote.id ? { ...values, id: l.id } : l,
+        // Find the row index
+        const rowIndex = lotes.findIndex((l) => l.id === form.lote.id);
+        if (rowIndex === -1) return;
+
+        await fetch("/api/lotes", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rowIndex, lote: values }),
+        });
+
+        setLotes((current) =>
+          current.map((l) =>
+            l.id === form.lote.id ? { ...values, id: l.id } : l,
+          ),
         );
+      } else {
+        await fetch("/api/lotes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        });
+
+        setLotes((current) => [
+          ...current,
+          { ...values, id: `row-${current.length}` },
+        ]);
       }
-      return [...current, { ...values, id: crypto.randomUUID() }];
-    });
-    setForm(null);
+      setForm(null);
+    } catch (error) {
+      console.error("Error saving lote:", error);
+    }
+  }
+
+  async function refreshData() {
+    try {
+      const response = await fetch("/api/lotes");
+      const updatedLotes = await response.json();
+      setLotes(updatedLotes);
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    }
   }
 
   return (
@@ -57,6 +91,13 @@ export function Dashboard({ initialLotes }: { initialLotes: Lote[] }) {
           className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-plane focus-visible:outline-none"
         >
           Agregar lote
+        </button>
+        <button
+          type="button"
+          onClick={refreshData}
+          className="rounded-lg border border-ink-tertiary px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-plane-hover"
+        >
+          Actualizar
         </button>
       </header>
 
