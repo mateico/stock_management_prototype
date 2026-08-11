@@ -8,15 +8,6 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
-  "vars": {
-    "GOOGLE_SHEETS_PRIVATE_KEY": "-----BEGIN PRIVATE KEY-----\nMIIEugIBADANBgkqhkiG9w0BAQEFAASCBKQwggSgAgEAAoIBAQDH+NXNMAkwMswG\nWI1TO13A33QTRWwgBE5pVzv7CikVGS+YBDije0AS9ybNi02D7E7t6RjLSKH6bfl2\nAzVBS7f/fg5GLx5+kV6kOaXyFEm80h9EThaFVHTu6wU0ocisRIBGh3K9Q32GtRQv\n1mOI0e+t3AxVooFrkUTlRZLWa9Ah6AxbZPGAY8o48k9f10ZiwfgH3uhnwE9y9i7+\nrksfG6ofJll0V4NfvdJNXKCxm4Y5QCIJH5GNDGwajjMroBSWFb3P2FY3XOfauScZ\n2bTxVThdH7dqXx6Sy9pXtO/bkX/3Jv2Zm0vq7EMF8w2xLhsuRbqm3acCQYf+JFx2\nwbXyGrJnAgMBAAECggEAM3mkX4sr8lJBHqkQyAoSGiHrGULXkG5LWOZxtC9rX9j5\n3WHIypxhZABm5qYjMABWWPuVvE5YE8TXYD93J/W7yXLDbeGXMfFtsUx9oRED4i0c\ni1KmjW+uIgoxbtjudRm1A3K+YGXNHC3komPHf2K7Fb/9FNYeBniAiZwdLkDWdMN3\nnwXjg5MPLnFwDhAWOuHUjLIxn9ouwu18kqciUPCSblQlj2FFXHyj0PbvVLtDkyI7\nnopQvDUmMa9PxPBXYBqVdSe2fgqMMA/7+f+UsVpWG/pE26b+zrQlzikd4GceQvl8\ntDJtl6L8LLTLednvczLiNRf+5wKGPjnJLdvXvwfN4QKBgQD9aE3dWNtjVEizEpU3\nik+faicHVCH/LKvDEI2mrfNiiHTAeizX2dhxeMAWKloqiiQviXp46rYG7eONWZQQ\ntL5+8XJXaDW+hVY5q2cZ9DWP/32ufvVzbe2slz7a0kRlmc5QXkvQdpMEeZWxkODe\nn4xx+XoXiIaTC41n5MbFEGU0WQKBgQDKBJQ7ngJtPm167LageqpCTRFYaTzpdpLI\nbx5KbHCNSc8hKeTqQnV5Y7L3EGWPi7GmrFnex5QPTWvkjLI0nXq7J6UZCPvZUofs\nVs/cEyRW9od3VUZdZH8tI998ebtafgGrO7+gsU/9kv8fBblp4f+VODxhBnC7k0K+\nboQoeBlEvwKBgC2VbrRLgKN8jNtRk2/7PFlz0fN6iecKFRewyZpbHjXyT/YzxA9M\nC6hVzU/vbGrMkLfQZiyMJBRZBJ7vpzfeG4pgSm44u7o66AjVsWU0zdHKZsRV6DdM\nZf2u80qPmmggY8GHROIKAmZCrM/VPO4vCyeRdgn3sCWRZW1z9OGMEnh5AoGAMxh1\nZZ7RflAL4Mt+ZZig96QGfxYfEe2rsoZoYuqKjTHd8cVm4NluXQWafmLnTSdIB6AQ\nGwjfqf8rCuOLL0OlhzC/0VU0XgNB3cUXTdKJnnU8TjKDWZvRjtlD7Xfcq0azpVu3\nXC18zeYgIPiRrPY8bsGKg//dA5R7jS7mvlWiDoECf1Fh+xLBJ1iP6TS85ZddRJ/t\nEiGDeim3YBFHyENE3IPQTowne6bxi9l2lhYTqiOFmgdzqUdgfYah6Lz34Gg8qSv6\nrgIhCucYUUr1TYA91EkTc9G8AhIOilLyix6MNu5G8CFIRVWJZy+GJXGrkZc9zQ4S\nOqqrMy1DZdm1xQGVvU0=\n-----END PRIVATE KEY-----\n",
-    "GOOGLE_SHEETS_CLIENT_EMAIL": "first-account@lunar-campaign-317423.iam.gserviceaccount.com",
-    "GOOGLE_SHEETS_SPREADSHEET_ID": "1zm5nRA5-vMpA9j8r-22q3AAAipZEf22c8cQtjFGvnSg",
-    "GOOGLE_SHEETS_PROJECT_ID": "lunar-campaign-317423",
-    "GOOGLE_SHEETS_PRIVATE_KEY_ID": "25da47fa606970d18d0bbdd212ed497f53954a68",
-    "GOOGLE_SHEETS_CLIENT_ID": "117178586132753849058",
-    "GOOGLE_SHEETS_CERT_URL": "https://www.googleapis.com/robot/v1/metadata/x509/first-account%40lunar-campaign-317423.iam.gserviceaccount.com",
-  },
   "observability": {
     "enabled": false,
     "head_sampling_rate": 1,
