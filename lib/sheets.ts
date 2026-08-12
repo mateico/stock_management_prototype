@@ -1,4 +1,36 @@
-import { google } from "googleapis";
+import type { Lote } from "./types";
+
+function getAuth() {
+  return new (class {
+    // dummy auth
+  })();
+}
+
+export async function getSheetData(): Promise<string[][]> {
+  // Return dummy data with header and sample rows
+  return [
+    ["Tipo Pan", "Lote", "Unidades", "Estado"],
+    ["Pan Blanco", "LOT001", "50", "Activo"],
+    ["Pan Integral", "LOT002", "30", "Activo"],
+    ["Pan de Centeno", "LOT003", "25", "Inactivo"],
+    ["Pan Dulce", "LOT004", "40", "Activo"],
+  ];
+}
+
+export async function appendLoteToSheet(lote: Omit<Lote, "id">): Promise<void> {
+  // Dummy: just log for testing
+  console.log("Would append to sheet:", lote);
+}
+
+export async function updateLoteInSheet(
+  rowIndex: number,
+  lote: Omit<Lote, "id">,
+): Promise<void> {
+  // Dummy: just log for testing
+  console.log(`Would update row ${rowIndex} in sheet:`, lote);
+}
+
+/* import { google } from "googleapis";
 import type { Lote } from "./types";
 
 function getAuth() {
@@ -60,3 +92,4 @@ export async function updateLoteInSheet(
     },
   });
 }
+ */
