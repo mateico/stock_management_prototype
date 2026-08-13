@@ -68,8 +68,12 @@ async function getAccessToken(): Promise<string> {
     return cachedToken.accessToken;
   }
 
-  const clientEmail = process.env.GOOGLE_SHEETS_CLIENT_EMAIL;
-  const privateKeyPem = process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const clientEmail = process.env.GOOGLE_SHEETS_CLIENT_EMAIL?.trim().replace(/^["']|["']$/g, "");
+  // Secrets pasted via `wrangler secret put` keep surrounding quotes and literal
+  // "\n" as-is (unlike .env/.dev.vars parsers, which strip/interpret them).
+  const privateKeyPem = process.env.GOOGLE_SHEETS_PRIVATE_KEY?.trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/\\n/g, "\n");
   if (!clientEmail || !privateKeyPem) {
     throw new Error("Missing GOOGLE_SHEETS_CLIENT_EMAIL or GOOGLE_SHEETS_PRIVATE_KEY");
   }
