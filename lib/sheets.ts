@@ -123,7 +123,7 @@ async function getAccessToken(): Promise<string> {
 
 async function sheetsFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const accessToken = await getAccessToken();
-  const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
+  const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID?.trim().replace(/^["']|["']$/g, "");
 
   const response = await fetch(`${SHEETS_API}/${spreadsheetId}${path}`, {
     ...init,
