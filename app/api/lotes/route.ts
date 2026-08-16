@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { rowIndex, lote } = await request.json();
+    const { rowIndex, lote } = (await request.json()) as {
+      rowIndex: number;
+      lote: Omit<Lote, "id">;
+    };
     await updateLoteInSheet(rowIndex, lote);
     return NextResponse.json({ success: true });
   } catch (error) {

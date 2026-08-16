@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
 import {
   formatNumber,
   formatPercent,
@@ -64,15 +65,54 @@ export function Dashboard({ initialLotes }: { initialLotes: Lote[] }) {
     }
   }
 
-  async function refreshData() {
+  const refreshData = useCallback(async () => {
     try {
       const response = await fetch("/api/lotes");
-      const updatedLotes = await response.json();
+      const updatedLotes = (await response.json()) as Lote[];
       setLotes(updatedLotes);
     } catch (error) {
       console.error("Error refreshing data:", error);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    let socket: WebSocket | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+
+    function connect() {
+      if (cancelled) return;
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      socket = new WebSocket(
+        `${protocol}//${window.location.host}/api/sheets-stream`,
+      );
+
+      socket.addEventListener("message", (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === "updated") refreshData();
+        } catch {
+          // ignore malformed messages
+        }
+      });
+
+      socket.addEventListener("close", () => {
+        if (!cancelled) reconnectTimer = setTimeout(connect, 3000);
+      });
+
+      socket.addEventListener("error", () => {
+        socket?.close();
+      });
+    }
+
+    connect();
+
+    return () => {
+      cancelled = true;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      socket?.close();
+    };
+  }, [refreshData]);
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10">
