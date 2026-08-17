@@ -1,10 +1,10 @@
 import { Dashboard } from "./components/Dashboard";
-import { getLotes } from "@/lib/data";
+import { getPedidos } from "@/lib/pedidos";
 
 export const revalidate = 0; // dDisable static prerendering
 
 export default async function Page() {
-  const lotes = await getLotes();
+  const pedidos = await getPedidos();
 
-  return <Dashboard initialLotes={lotes} />;
+  return <Dashboard initialPedidos={pedidos} />;
 }

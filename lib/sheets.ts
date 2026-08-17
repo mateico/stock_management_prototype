@@ -1,37 +1,3 @@
-/*import type { Lote } from "./types";
-
-function getAuth() {
-  return new (class {
-    // dummy auth
-  })();
-}
-
-export async function getSheetData(): Promise<string[][]> {
-  // Return dummy data with header and sample rows
-  return [
-    ["Tipo Pan", "Lote", "Unidades", "Estado"],
-    ["Pan Blanco", "LOT001", "50", "Activo"],
-    ["Pan Integral", "LOT002", "30", "Activo"],
-    ["Pan de Centeno", "LOT003", "25", "Inactivo"],
-    ["Pan Dulce", "LOT004", "40", "Activo"],
-  ];
-}
-
-export async function appendLoteToSheet(lote: Omit<Lote, "id">): Promise<void> {
-  // Dummy: just log for testing
-  console.log("Would append to sheet:", lote);
-}
-
-export async function updateLoteInSheet(
-  rowIndex: number,
-  lote: Omit<Lote, "id">,
-): Promise<void> {
-  // Dummy: just log for testing
-  console.log(`Would update row ${rowIndex} in sheet:`, lote);
-}*/
-
-import type { Lote } from "./types";
-
 // googleapis/google-auth-library relies on Node internals that don't work
 // correctly under the Cloudflare Workers runtime (workerd), even with
 // nodejs_compat — JWT signing silently produces tokens Google rejects with
@@ -41,7 +7,10 @@ import type { Lote } from "./types";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SHEETS_API = "https://sheets.googleapis.com/v4/spreadsheets";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
-const SHEET_RANGE = "Sheet1!A:D";
+// Tab name inside the spreadsheet. Wrap in single quotes if it ever contains
+// spaces (e.g. "'Current Orders'").
+const SHEET_NAME = "Current";
+const SHEET_RANGE = `${SHEET_NAME}!A:I`;
 
 let cachedToken: { accessToken: string; expiresAt: number } | null = null;
 
@@ -148,27 +117,30 @@ export async function getSheetData(): Promise<string[][]> {
   return data.values || [];
 }
 
-export async function appendLoteToSheet(lote: Omit<Lote, "id">): Promise<void> {
-  await sheetsFetch(`/values/${encodeURIComponent(SHEET_RANGE)}:append?valueInputOption=USER_ENTERED`, {
-    method: "POST",
-    body: JSON.stringify({
-      values: [[lote.tipoPan, lote.lote, lote.unidades, lote.estado]],
-    }),
-  });
-}
-
-export async function updateLoteInSheet(
-  rowIndex: number,
-  lote: Omit<Lote, "id">,
+export async function updatePanItem(
+  rowNumber: number,
+  values: { cant: number; pqt: number; nota2: string; empaque: string },
 ): Promise<void> {
-  // Row index + 2 (1 for header, 1 for A1 notation starting at 1)
-  const rowNumber = rowIndex + 2;
-  const range = `Sheet1!A${rowNumber}:D${rowNumber}`;
+  const range = `${SHEET_NAME}!D${rowNumber}:G${rowNumber}`;
 
   await sheetsFetch(`/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`, {
     method: "PUT",
     body: JSON.stringify({
-      values: [[lote.tipoPan, lote.lote, lote.unidades, lote.estado]],
+      values: [[values.cant, values.pqt, values.nota2, values.empaque]],
+    }),
+  });
+}
+
+export async function updateClienteHeader(
+  rowNumber: number,
+  values: { chofer: string; distribucion: string },
+): Promise<void> {
+  const range = `${SHEET_NAME}!H${rowNumber}:I${rowNumber}`;
+
+  await sheetsFetch(`/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`, {
+    method: "PUT",
+    body: JSON.stringify({
+      values: [[values.chofer, values.distribucion]],
     }),
   });
 }

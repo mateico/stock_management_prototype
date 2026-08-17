@@ -1,75 +1,33 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import {
-  formatNumber,
-  formatPercent,
-  totalUnidades,
-  unidadesPorEstado,
-  unidadesPorTipo,
-} from "@/lib/summary";
-import type { Lote } from "@/lib/types";
-import { EstadoBreakdown } from "./EstadoBreakdown";
-import { LoteFormDialog } from "./LoteFormDialog";
-import { LotesTable } from "./LotesTable";
-import { StatTile } from "./StatTile";
-import { UnidadesPorTipo } from "./UnidadesPorTipo";
+import type { Cliente } from "@/lib/types";
+import { useIsDesktop } from "../hooks/useIsDesktop";
+import { PedidoList, type PedidoView } from "./PedidoList";
+import type { ClientePatch, PanItemPatch } from "./PedidoCard";
+import { ViewSwitcher } from "./ViewSwitcher";
 
-type FormState = { mode: "add" } | { mode: "edit"; lote: Lote };
+export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
+  const [pedidos, setPedidos] = useState(initialPedidos);
+  const isDesktop = useIsDesktop();
+  const [view, setView] = useState<PedidoView>("stacked");
+  const hasManualView = useRef(false);
 
-export function Dashboard({ initialLotes }: { initialLotes: Lote[] }) {
-  const [lotes, setLotes] = useState(initialLotes);
-  const [form, setForm] = useState<FormState | null>(null);
+  useEffect(() => {
+    if (!hasManualView.current) setView(isDesktop ? "grid" : "stacked");
+  }, [isDesktop]);
 
-  const total = useMemo(() => totalUnidades(lotes), [lotes]);
-  const porTipo = useMemo(() => unidadesPorTipo(lotes), [lotes]);
-  const porEstado = useMemo(() => unidadesPorEstado(lotes), [lotes]);
-
-  const completado = porEstado.find((e) => e.estado === "Completado");
-  const enProgreso = porEstado.find((e) => e.estado === "En Progreso");
-
-  async function handleSave(values: Omit<Lote, "id">) {
-    try {
-      if (form?.mode === "edit") {
-        // Find the row index
-        const rowIndex = lotes.findIndex((l) => l.id === form.lote.id);
-        if (rowIndex === -1) return;
-
-        await fetch("/api/lotes", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rowIndex, lote: values }),
-        });
-
-        setLotes((current) =>
-          current.map((l) =>
-            l.id === form.lote.id ? { ...values, id: l.id } : l,
-          ),
-        );
-      } else {
-        await fetch("/api/lotes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        });
-
-        setLotes((current) => [
-          ...current,
-          { ...values, id: `row-${current.length}` },
-        ]);
-      }
-      setForm(null);
-    } catch (error) {
-      console.error("Error saving lote:", error);
-    }
+  function handleViewChange(next: PedidoView) {
+    hasManualView.current = true;
+    setView(next);
   }
 
   const refreshData = useCallback(async () => {
     try {
-      const response = await fetch("/api/lotes");
-      const updatedLotes = (await response.json()) as Lote[];
-      setLotes(updatedLotes);
+      const response = await fetch("/api/pedidos");
+      const updated = (await response.json()) as Cliente[];
+      setPedidos(updated);
     } catch (error) {
       console.error("Error refreshing data:", error);
     }
@@ -114,78 +72,122 @@ export function Dashboard({ initialLotes }: { initialLotes: Lote[] }) {
     };
   }, [refreshData]);
 
+  const handleUpdatePanItem = useCallback(
+    (clienteId: string, panItemId: string, patch: PanItemPatch) => {
+      const cliente = pedidos.find((c) => c.id === clienteId);
+      const item = cliente?.panes.find((p) => p.id === panItemId);
+      if (!cliente || !item) return;
+
+      const previous = { cant: item.cant, pqt: item.pqt, empaque: item.empaque };
+      const next = { ...previous, ...patch };
+
+      setPedidos((current) =>
+        current.map((c) =>
+          c.id === clienteId
+            ? {
+                ...c,
+                panes: c.panes.map((p) => (p.id === panItemId ? { ...p, ...patch } : p)),
+              }
+            : c,
+        ),
+      );
+
+      fetch("/api/pedidos/pan-item", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rowNumber: item.rowNumber,
+          cant: next.cant,
+          pqt: next.pqt,
+          nota2: item.nota2,
+          empaque: next.empaque,
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        })
+        .catch((error) => {
+          console.error("Error updating pan item:", error);
+          setPedidos((current) =>
+            current.map((c) =>
+              c.id === clienteId
+                ? {
+                    ...c,
+                    panes: c.panes.map((p) =>
+                      p.id === panItemId ? { ...p, ...previous } : p,
+                    ),
+                  }
+                : c,
+            ),
+          );
+        });
+    },
+    [pedidos],
+  );
+
+  const handleUpdateCliente = useCallback(
+    (clienteId: string, patch: ClientePatch) => {
+      const cliente = pedidos.find((c) => c.id === clienteId);
+      if (!cliente) return;
+
+      const previous = { chofer: cliente.chofer, distribucion: cliente.distribucion };
+      const next = { ...previous, ...patch };
+
+      setPedidos((current) =>
+        current.map((c) => (c.id === clienteId ? { ...c, ...patch } : c)),
+      );
+
+      fetch("/api/pedidos/cliente", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rowNumber: cliente.rowNumber, ...next }),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        })
+        .catch((error) => {
+          console.error("Error updating cliente:", error);
+          setPedidos((current) =>
+            current.map((c) => (c.id === clienteId ? { ...c, ...previous } : c)),
+          );
+        });
+    },
+    [pedidos],
+  );
+
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10">
+    <main
+      className={`mx-auto flex w-full flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10 ${
+        view === "grid" ? "max-w-none" : "max-w-6xl"
+      }`}
+    >
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
             Producción de panadería
           </h1>
           <p className="mt-1 text-sm text-ink-secondary">
-            Resumen de lotes registrados en la planilla de producción.
+            Pedidos registrados en la planilla de distribución.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setForm({ mode: "add" })}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-plane focus-visible:outline-none"
-        >
-          Agregar lote
-        </button>
-        <button
-          type="button"
-          onClick={refreshData}
-          className="rounded-lg border border-ink-tertiary px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-plane-hover"
-        >
-          Actualizar
-        </button>
+        <div className="flex items-center gap-3">
+          <ViewSwitcher view={view} onChange={handleViewChange} />
+          <button
+            type="button"
+            onClick={refreshData}
+            className="rounded-lg border border-hairline px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-plane"
+          >
+            Actualizar
+          </button>
+        </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          hero
-          label="Unidades totales"
-          value={formatNumber(total)}
-          note={`${lotes.length} ${lotes.length === 1 ? "lote" : "lotes"} registrados`}
-        />
-        <StatTile
-          label="Completadas"
-          value={formatNumber(completado?.unidades ?? 0)}
-          note={`${formatPercent(completado?.share ?? 0)} del total`}
-        />
-        <StatTile
-          label="En progreso"
-          value={formatNumber(enProgreso?.unidades ?? 0)}
-          note={`${enProgreso?.lotes ?? 0} ${
-            enProgreso?.lotes === 1 ? "lote activo" : "lotes activos"
-          }`}
-        />
-        <StatTile
-          label="Tipos de pan"
-          value={formatNumber(porTipo.length)}
-          note={porTipo[0] ? `Mayor volumen: ${porTipo[0].tipoPan}` : undefined}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <UnidadesPorTipo data={porTipo} />
-        <EstadoBreakdown data={porEstado} />
-      </div>
-
-      <LotesTable
-        lotes={lotes}
-        onEdit={(lote) => setForm({ mode: "edit", lote })}
+      <PedidoList
+        clientes={pedidos}
+        view={view}
+        onUpdatePanItem={handleUpdatePanItem}
+        onUpdateCliente={handleUpdateCliente}
       />
-
-      {form ? (
-        <LoteFormDialog
-          key={form.mode === "edit" ? form.lote.id : "nuevo"}
-          lote={form.mode === "edit" ? form.lote : null}
-          lotes={lotes}
-          onSave={handleSave}
-          onClose={() => setForm(null)}
-        />
-      ) : null}
     </main>
   );
 }
