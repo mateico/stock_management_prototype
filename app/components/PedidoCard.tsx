@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { CHOFERES, DISTRIBUCIONES, EMPAQUES, type Cliente, type PanItem } from "@/lib/types";
+import {
+  CHOFERES,
+  DISTRIBUCIONES,
+  EMPAQUES,
+  type Cliente,
+  type PanItem,
+} from "@/lib/types";
 
 function selectOptions(known: readonly string[], current: string): string[] {
   return known.includes(current) ? [...known] : [current, ...known];
@@ -38,16 +44,115 @@ function StatusSelect({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       style={colorVar ? { borderColor: colorVar, color: colorVar } : undefined}
-      className={`rounded-full border bg-transparent font-medium whitespace-nowrap focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
-        dense ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs"
+      className={`appearance-none rounded-full border bg-transparent text-center font-medium whitespace-nowrap [text-align-last:center] focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
+        dense ? "px-3 py-[3px] text-[16.5px]" : "px-2.5 py-1 text-xs"
       } ${colorVar ? "" : "border-hairline text-ink-secondary"}`}
     >
       {options.map((option) => (
-        <option key={option} value={option}>
+        <option key={option} value={option} className="text-center">
           {option || "—"}
         </option>
       ))}
     </select>
+  );
+}
+
+function NumberEditPopup({
+  label,
+  initialValue,
+  onConfirm,
+  onCancel,
+}: {
+  label: string;
+  initialValue: number;
+  onConfirm: (value: number) => void;
+  onCancel: () => void;
+}) {
+  const [draft, setDraft] = useState(String(initialValue));
+
+  function confirm() {
+    onConfirm(Math.max(0, parseInt(draft, 10) || 0));
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-xs rounded-xl border border-hairline bg-surface p-4 shadow-lg"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <p className="mb-2 text-sm font-medium text-ink-secondary">{label}</p>
+        <input
+          type="number"
+          min={0}
+          autoFocus
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onFocus={(event) => event.currentTarget.select()}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") confirm();
+            if (event.key === "Escape") onCancel();
+          }}
+          className="w-full rounded-md border border-hairline bg-transparent px-3 py-2 text-right text-lg tabular-nums focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+        />
+        <div className="mt-3 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-lg border border-hairline px-3 py-1.5 text-sm font-medium text-ink-secondary transition-colors hover:bg-plane"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={confirm}
+            className="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-accent-ink transition-colors hover:opacity-90"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditableNumber({
+  value,
+  label,
+  dense,
+  onCommit,
+}: {
+  value: number;
+  label: string;
+  dense: boolean;
+  onCommit: (value: number) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        aria-label={label}
+        className={`min-w-0 flex-1 text-right tabular-nums ${dense ? "text-[16.5px]" : "text-sm"}`}
+      >
+        {value}
+      </button>
+      {editing ? (
+        <NumberEditPopup
+          label={label}
+          initialValue={value}
+          onConfirm={(next) => {
+            setEditing(false);
+            if (next !== value) onCommit(next);
+          }}
+          onCancel={() => setEditing(false)}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -60,78 +165,68 @@ function PanItemRow({
   dense: boolean;
   onCommit: (patch: { cant?: number; pqt?: number; empaque?: string }) => void;
 }) {
-  const [cant, setCant] = useState(String(item.cant));
-  const [cantSource, setCantSource] = useState(item.cant);
-  if (item.cant !== cantSource) {
-    setCantSource(item.cant);
-    setCant(String(item.cant));
-  }
-
-  const [pqt, setPqt] = useState(String(item.pqt));
-  const [pqtSource, setPqtSource] = useState(item.pqt);
-  if (item.pqt !== pqtSource) {
-    setPqtSource(item.pqt);
-    setPqt(String(item.pqt));
-  }
-
-  function commitCant() {
-    const parsed = Math.max(0, parseInt(cant, 10) || 0);
-    setCant(String(parsed));
-    if (parsed !== item.cant) onCommit({ cant: parsed });
-  }
-
-  function commitPqt() {
-    const parsed = Math.max(0, parseInt(pqt, 10) || 0);
-    setPqt(String(parsed));
-    if (parsed !== item.pqt) onCommit({ pqt: parsed });
-  }
-
   return (
     <div
-      className={`flex flex-col gap-1.5 rounded-lg border border-hairline ${
-        dense ? "px-2 py-1" : "px-3 py-2"
+      className={`flex items-center rounded-lg border bg-surface border-hairline ${
+        dense ? "gap-3 rounded-xl px-3 py-1.5" : "gap-2 px-3 py-2"
       }`}
     >
-      <div className="min-w-0">
-        <p className={`truncate font-medium ${dense ? "text-xs" : "text-sm"}`}>{item.pan}</p>
-        {item.nota2 ? (
-          <p className={`truncate text-ink-muted ${dense ? "text-[10px]" : "text-xs"}`}>
-            {item.nota2}
-          </p>
-        ) : null}
-      </div>
-      <div className="flex items-center gap-2">
-        <input
-          type="number"
-          min={0}
-          value={cant}
-          onChange={(event) => setCant(event.target.value)}
-          onBlur={commitCant}
-          aria-label={`Cantidad de ${item.pan}`}
-          className={`min-w-0 flex-1 rounded-md border border-hairline bg-transparent text-right tabular-nums focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
-            dense ? "px-1 py-0.5 text-[11px]" : "px-2 py-1 text-sm"
-          }`}
-        />
-        <input
-          type="number"
-          min={0}
-          value={pqt}
-          onChange={(event) => setPqt(event.target.value)}
-          onBlur={commitPqt}
-          aria-label={`Paquetes de ${item.pan}`}
-          className={`min-w-0 flex-1 rounded-md border border-hairline bg-transparent text-right tabular-nums focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
-            dense ? "px-1 py-0.5 text-[11px]" : "px-2 py-1 text-sm"
-          }`}
-        />
-        <StatusSelect
-          label={`Empaque de ${item.pan}`}
-          value={item.empaque}
-          options={selectOptions(EMPAQUES, item.empaque)}
+      <p
+        className={`min-w-0 truncate font-medium ${item.nota2 ? "flex-[2]" : "flex-[4]"} ${
+          dense ? "text-lg" : "text-sm"
+        }`}
+      >
+        {item.pan}
+      </p>
+      {item.nota2 ? (
+        <p
+          className={`min-w-0 flex-[2] truncate text-ink-muted ${dense ? "text-[15px]" : "text-xs"}`}
+        >
+          {item.nota2}
+        </p>
+      ) : null}
+      <div
+        className={`flex flex-1 items-center justify-end ${dense ? "gap-1.5" : "gap-1"}`}
+      >
+        <EditableNumber
+          value={item.cant}
+          label={`Cantidad de ${item.pan}`}
           dense={dense}
-          colorVar={empaqueColor(item.empaque)}
-          onChange={(empaque) => onCommit({ empaque })}
+          onCommit={(cant) => onCommit({ cant })}
+        />
+        <span className={`text-ink-muted ${dense ? "text-[16.5px]" : "text-sm"}`}>
+          /
+        </span>
+        <EditableNumber
+          value={item.pqt}
+          label={`Paquetes de ${item.pan}`}
+          dense={dense}
+          onCommit={(pqt) => onCommit({ pqt })}
         />
       </div>
+      <StatusSelect
+        label={`Empaque de ${item.pan}`}
+        value={item.empaque}
+        options={selectOptions(EMPAQUES, item.empaque)}
+        dense={dense}
+        colorVar={empaqueColor(item.empaque)}
+        onChange={(empaque) => onCommit({ empaque })}
+      />
+    </div>
+  );
+}
+
+function PanItemHeader({ dense }: { dense: boolean }) {
+  return (
+    <div
+      className={`flex items-center text-ink-muted uppercase ${
+        dense ? "gap-3 px-3 text-[13.5px]" : "gap-2 px-3 text-[10px]"
+      }`}
+    >
+      <span className="min-w-0 flex-[2] truncate">Item.pan.</span>
+      <span className="min-w-0 flex-[2] truncate">Item.nota</span>
+      <span className="flex-1 text-right">Cant-pqt</span>
+      <span className="text-right">Empaque</span>
     </div>
   );
 }
@@ -147,25 +242,33 @@ export function PedidoCard({
 }: {
   cliente: Cliente;
   dense?: boolean;
-  onUpdatePanItem: (clienteId: string, panItemId: string, patch: PanItemPatch) => void;
+  onUpdatePanItem: (
+    clienteId: string,
+    panItemId: string,
+    patch: PanItemPatch,
+  ) => void;
   onUpdateCliente: (clienteId: string, patch: ClientePatch) => void;
 }) {
   return (
     <section
-      className={`flex flex-col rounded-xl border border-hairline bg-surface ${
-        dense ? "gap-2 p-3" : "gap-4 p-5"
+      className={`flex flex-col border border-hairline bg-cardback break-inside-avoid ${
+        dense ? "gap-3 rounded-2xl p-[18px]" : "gap-4 rounded-xl p-5"
       }`}
     >
       <header className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className={`truncate font-semibold ${dense ? "text-sm" : "text-base"}`}>
+        <h3
+          className={`truncate font-semibold ${dense ? "text-[21px]" : "text-base"}`}
+        >
           {cliente.cliente}
         </h3>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div
+          className={`flex flex-wrap items-center ${dense ? "gap-[9px]" : "gap-1.5"}`}
+        >
           {cliente.nota1 ? (
             <span
               title="Nota 1"
               className={`inline-flex items-center justify-center rounded-full border border-hairline font-semibold text-ink-secondary uppercase ${
-                dense ? "h-5 w-5 text-[9px]" : "h-6 w-6 text-[10px]"
+                dense ? "h-[30px] w-[30px] text-[13.5px]" : "h-6 w-6 text-[10px]"
               }`}
             >
               {cliente.nota1.slice(0, 2)}
@@ -184,23 +287,30 @@ export function PedidoCard({
             options={selectOptions(DISTRIBUCIONES, cliente.distribucion)}
             dense={dense}
             colorVar={distribucionColor(cliente.distribucion)}
-            onChange={(distribucion) => onUpdateCliente(cliente.id, { distribucion })}
+            onChange={(distribucion) =>
+              onUpdateCliente(cliente.id, { distribucion })
+            }
           />
         </div>
       </header>
 
-      <div className={`flex flex-col ${dense ? "gap-1" : "gap-2"}`}>
+      <div className={`flex flex-col ${dense ? "gap-1.5" : "gap-2"}`}>
         {cliente.panes.length === 0 ? (
-          <p className="text-xs text-ink-muted">Sin panes cargados.</p>
+          <p className={`text-ink-muted ${dense ? "text-lg" : "text-xs"}`}>
+            Sin panes cargados.
+          </p>
         ) : (
-          cliente.panes.map((item) => (
-            <PanItemRow
-              key={item.id}
-              item={item}
-              dense={dense}
-              onCommit={(patch) => onUpdatePanItem(cliente.id, item.id, patch)}
-            />
-          ))
+          <>
+            <PanItemHeader dense={dense} />
+            {cliente.panes.map((item) => (
+              <PanItemRow
+                key={item.id}
+                item={item}
+                dense={dense}
+                onCommit={(patch) => onUpdatePanItem(cliente.id, item.id, patch)}
+              />
+            ))}
+          </>
         )}
       </div>
     </section>

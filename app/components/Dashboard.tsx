@@ -158,7 +158,7 @@ export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
   return (
     <main
       className={`mx-auto flex w-full flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10 ${
-        view === "grid" ? "max-w-none" : "max-w-6xl"
+        view === "grid" ? "h-dvh max-w-none overflow-hidden" : "max-w-6xl"
       }`}
     >
       <header className="flex flex-wrap items-end justify-between gap-4">

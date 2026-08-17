@@ -4,7 +4,8 @@
   color-scheme: light;
 
   /* Surfaces & ink */
-  --plane: #f9f9f7;
+  --plane: #fffdec;
+  --cardback: #f4f4f4;
   --surface: #fcfcfb;
   --ink: #0b0b0b;
   --ink-secondary: #52514e;
@@ -26,6 +27,7 @@
 
 @theme inline {
   --color-plane: var(--plane);
+  --color-cardback: var(--cardback);
   --color-surface: var(--surface);
   --color-ink: var(--ink);
   --color-ink-secondary: var(--ink-secondary);
