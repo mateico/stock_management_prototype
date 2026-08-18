@@ -78,7 +78,11 @@ export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
       const item = cliente?.panes.find((p) => p.id === panItemId);
       if (!cliente || !item) return;
 
-      const previous = { cant: item.cant, pqt: item.pqt, empaque: item.empaque };
+      const previous = {
+        cant: item.cant,
+        pqt: item.pqt,
+        empaque: item.empaque,
+      };
       const next = { ...previous, ...patch };
 
       setPedidos((current) =>
@@ -86,7 +90,9 @@ export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
           c.id === clienteId
             ? {
                 ...c,
-                panes: c.panes.map((p) => (p.id === panItemId ? { ...p, ...patch } : p)),
+                panes: c.panes.map((p) =>
+                  p.id === panItemId ? { ...p, ...patch } : p,
+                ),
               }
             : c,
         ),
@@ -104,7 +110,8 @@ export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
         }),
       })
         .then((response) => {
-          if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+          if (!response.ok)
+            throw new Error(`Request failed: ${response.status}`);
         })
         .catch((error) => {
           console.error("Error updating pan item:", error);
@@ -130,7 +137,10 @@ export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
       const cliente = pedidos.find((c) => c.id === clienteId);
       if (!cliente) return;
 
-      const previous = { chofer: cliente.chofer, distribucion: cliente.distribucion };
+      const previous = {
+        chofer: cliente.chofer,
+        distribucion: cliente.distribucion,
+      };
       const next = { ...previous, ...patch };
 
       setPedidos((current) =>
@@ -143,12 +153,15 @@ export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
         body: JSON.stringify({ rowNumber: cliente.rowNumber, ...next }),
       })
         .then((response) => {
-          if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+          if (!response.ok)
+            throw new Error(`Request failed: ${response.status}`);
         })
         .catch((error) => {
           console.error("Error updating cliente:", error);
           setPedidos((current) =>
-            current.map((c) => (c.id === clienteId ? { ...c, ...previous } : c)),
+            current.map((c) =>
+              c.id === clienteId ? { ...c, ...previous } : c,
+            ),
           );
         });
     },
@@ -157,18 +170,13 @@ export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
 
   return (
     <main
-      className={`mx-auto flex w-full flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10 ${
+      className={`mx-auto flex w-full flex-col gap-6 px-5 py-8 sm:px-8 sm:py-5 ${
         view === "grid" ? "h-dvh max-w-none overflow-hidden" : "max-w-6xl"
       }`}
     >
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Producción de panadería
-          </h1>
-          <p className="mt-1 text-sm text-ink-secondary">
-            Pedidos registrados en la planilla de distribución.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">Martino</h1>
         </div>
         <div className="flex items-center gap-3">
           <ViewSwitcher view={view} onChange={handleViewChange} />

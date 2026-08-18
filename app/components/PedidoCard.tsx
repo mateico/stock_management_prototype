@@ -194,7 +194,9 @@ function PanItemRow({
           dense={dense}
           onCommit={(cant) => onCommit({ cant })}
         />
-        <span className={`text-ink-muted ${dense ? "text-[16.5px]" : "text-sm"}`}>
+        <span
+          className={`text-ink-muted ${dense ? "text-[16.5px]" : "text-sm"}`}
+        >
           /
         </span>
         <EditableNumber
@@ -212,21 +214,6 @@ function PanItemRow({
         colorVar={empaqueColor(item.empaque)}
         onChange={(empaque) => onCommit({ empaque })}
       />
-    </div>
-  );
-}
-
-function PanItemHeader({ dense }: { dense: boolean }) {
-  return (
-    <div
-      className={`flex items-center text-ink-muted uppercase ${
-        dense ? "gap-3 px-3 text-[13.5px]" : "gap-2 px-3 text-[10px]"
-      }`}
-    >
-      <span className="min-w-0 flex-[2] truncate">Item.pan.</span>
-      <span className="min-w-0 flex-[2] truncate">Item.nota</span>
-      <span className="flex-1 text-right">Cant-pqt</span>
-      <span className="text-right">Empaque</span>
     </div>
   );
 }
@@ -268,7 +255,9 @@ export function PedidoCard({
             <span
               title="Nota 1"
               className={`inline-flex items-center justify-center rounded-full border border-hairline font-semibold text-ink-secondary uppercase ${
-                dense ? "h-[30px] w-[30px] text-[13.5px]" : "h-6 w-6 text-[10px]"
+                dense
+                  ? "h-[30px] w-[30px] text-[13.5px]"
+                  : "h-6 w-6 text-[10px]"
               }`}
             >
               {cliente.nota1.slice(0, 2)}
@@ -301,13 +290,14 @@ export function PedidoCard({
           </p>
         ) : (
           <>
-            <PanItemHeader dense={dense} />
             {cliente.panes.map((item) => (
               <PanItemRow
                 key={item.id}
                 item={item}
                 dense={dense}
-                onCommit={(patch) => onUpdatePanItem(cliente.id, item.id, patch)}
+                onCommit={(patch) =>
+                  onUpdatePanItem(cliente.id, item.id, patch)
+                }
               />
             ))}
           </>
