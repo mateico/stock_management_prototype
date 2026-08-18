@@ -23,7 +23,8 @@ function empaqueColor(value: string): string {
 function empaqueBackgroundColor(value: string): string {
   if (value === "Listo") return "var(--listo-soft)";
   if (value === "Fin") return "var(--good-soft)";
-  if (value === "Produccion" || value === "En Proceso") return "var(--warning-soft)";
+  if (value === "Produccion" || value === "En Proceso")
+    return "var(--warning-soft)";
   return "var(--neutral-soft)";
 }
 
@@ -75,7 +76,11 @@ function StatusSelect({
       aria-label={label}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      style={colorVar ? { borderColor: colorVar, color: colorVar, backgroundColor: bgColor } : undefined}
+      style={
+        colorVar
+          ? { borderColor: colorVar, color: colorVar, backgroundColor: bgColor }
+          : undefined
+      }
       className={`appearance-none rounded-full border bg-transparent text-center font-medium whitespace-nowrap [text-align-last:center] focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
         dense ? "px-3 py-[3px] text-[16.5px]" : "px-2.5 py-1 text-xs"
       } ${colorVar ? "" : "border-hairline text-ink-secondary"}`}
@@ -218,7 +223,7 @@ function PanItemRow({
         </p>
       ) : null}
       <div
-        className={`flex flex-1 items-center justify-end ${dense ? "gap-1.5" : "gap-1"}`}
+        className={`flex flex-1 items-center mr-2 justify-end ${dense ? "gap-1.5" : "gap-1"}`}
       >
         <EditableNumber
           value={item.cant}
@@ -226,11 +231,7 @@ function PanItemRow({
           dense={dense}
           onCommit={(cant) => onCommit({ cant })}
         />
-        <span
-          className={`text-ink-muted ${dense ? "text-[16.5px]" : "text-sm"}`}
-        >
-          /
-        </span>
+
         <EditableNumber
           value={item.pqt}
           label={`Paquetes de ${item.pan}`}
@@ -269,14 +270,18 @@ export function PedidoCard({
   ) => void;
   onUpdateCliente: (clienteId: string, patch: ClientePatch) => void;
 }) {
-  const allListoOrEmpty = cliente.panes.length > 0 && cliente.panes.every((item) => item.empaque === "Listo");
+  const allListoOrEmpty =
+    cliente.panes.length > 0 &&
+    cliente.panes.every((item) => item.empaque === "Listo");
 
   return (
     <section
       className={`flex flex-col border border-hairline bg-cardback break-inside-avoid ${
         dense ? "gap-3 rounded-2xl p-[18px]" : "gap-4 rounded-xl p-5"
       }`}
-      style={allListoOrEmpty ? { backgroundColor: "var(--listo-soft)" } : undefined}
+      style={
+        allListoOrEmpty ? { backgroundColor: "var(--listo-soft)" } : undefined
+      }
     >
       <header className="flex flex-wrap items-center justify-between gap-2">
         <h3

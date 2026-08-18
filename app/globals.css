@@ -19,6 +19,10 @@
   --accent-ink: #ffffff;
   --accent-wash: #cde2fb;
 
+  /* Active switch state */
+  --active-switch: #2a4c3c;
+  --active-switch-ink: #ffffff;
+
   /* Status — reserved, never used as series colors */
   --good: #0ca30c;
   --warning: #fab219;

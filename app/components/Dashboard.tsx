@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 import type { Cliente } from "@/lib/types";
 import { useIsDesktop } from "../hooks/useIsDesktop";
@@ -170,15 +171,21 @@ export function Dashboard({ initialPedidos }: { initialPedidos: Cliente[] }) {
 
   return (
     <main
-      className={`mx-auto flex w-full flex-col gap-2 px-5 py-8 sm:px-8 sm:py-5 ${
+      className={`mx-auto flex w-full flex-col gap-2 px-5 pb-16 sm:px-8 sm:py-5 ${
         view === "grid" ? "h-dvh max-w-none overflow-hidden" : "max-w-6xl"
       }`}
     >
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Martino</h1>
+          <Image
+            src="/martino_logo.webp"
+            alt="Martino"
+            width={150}
+            height={80}
+            priority
+          />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-2">
           <ViewSwitcher view={view} onChange={handleViewChange} />
           <button
             type="button"

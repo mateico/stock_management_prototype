@@ -24,9 +24,14 @@ export function ViewSwitcher({
           type="button"
           aria-pressed={view === option.value}
           onClick={() => onChange(option.value)}
+          style={
+            view === option.value
+              ? { backgroundColor: "var(--active-switch)", color: "var(--active-switch-ink)" }
+              : undefined
+          }
           className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
             view === option.value
-              ? "bg-accent text-accent-ink"
+              ? ""
               : "text-ink-secondary hover:bg-plane"
           }`}
         >
