@@ -43,6 +43,7 @@ export function PedidoList({
         <PedidoCard
           key={cliente.id}
           cliente={cliente}
+          dense={true}
           onUpdatePanItem={onUpdatePanItem}
           onUpdateCliente={onUpdateCliente}
         />
