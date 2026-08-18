@@ -4,7 +4,7 @@
   color-scheme: light;
 
   /* Surfaces & ink */
-  --plane: #fffdec;
+  --plane: #f3f3f3;
   --cardback: #f4f4f4;
   --surface: #fcfcfb;
   --ink: #0b0b0b;
@@ -23,11 +23,27 @@
   --good: #0ca30c;
   --warning: #fab219;
   --neutral: #898781;
+  --listo: #e84c89;
 
   /* Status softened backgrounds */
   --good-soft: rgba(12, 163, 12, 0.1);
   --warning-soft: rgba(250, 178, 25, 0.1);
   --neutral-soft: rgba(137, 135, 129, 0.1);
+  --listo-soft: rgba(232, 76, 137, 0.25);
+
+  /* Chofer colors */
+  --mario: #2a78d6;
+  --mario-soft: rgba(42, 120, 214, 0.1);
+  --juan: #a855f7;
+  --juan-soft: rgba(168, 85, 247, 0.1);
+
+  /* Distribución colors */
+  --en-planta: #f59e0b;
+  --en-planta-soft: rgba(245, 158, 11, 0.1);
+  --cargado: #06b6d4;
+  --cargado-soft: rgba(6, 182, 212, 0.1);
+  --entregado: #0ca30c;
+  --entregado-soft: rgba(12, 163, 12, 0.1);
 }
 
 @theme inline {

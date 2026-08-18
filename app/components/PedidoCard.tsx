@@ -14,23 +14,43 @@ function selectOptions(known: readonly string[], current: string): string[] {
 }
 
 function empaqueColor(value: string): string {
-  if (value === "Fin" || value === "Listo") return "var(--good)";
+  if (value === "Listo") return "var(--listo)";
+  if (value === "Fin") return "var(--good)";
   if (value === "Produccion" || value === "En Proceso") return "var(--warning)";
   return "var(--neutral)";
 }
 
 function empaqueBackgroundColor(value: string): string {
-  if (value === "Fin" || value === "Listo") return "var(--good-soft)";
+  if (value === "Listo") return "var(--listo-soft)";
+  if (value === "Fin") return "var(--good-soft)";
   if (value === "Produccion" || value === "En Proceso") return "var(--warning-soft)";
   return "var(--neutral-soft)";
 }
 
+function choferColor(value: string): string {
+  if (value === "Mario") return "var(--mario)";
+  if (value === "Juan") return "var(--juan)";
+  return "";
+}
+
+function choferBackgroundColor(value: string): string {
+  if (value === "Mario") return "var(--mario-soft)";
+  if (value === "Juan") return "var(--juan-soft)";
+  return "";
+}
+
 function distribucionColor(value: string): string {
-  return value === "Entregado" ? "var(--good)" : "var(--neutral)";
+  if (value === "Entregado") return "var(--entregado)";
+  if (value === "Cargado") return "var(--cargado)";
+  if (value === "En planta") return "var(--en-planta)";
+  return "var(--neutral)";
 }
 
 function distribucionBackgroundColor(value: string): string {
-  return value === "Entregado" ? "var(--good-soft)" : "var(--neutral-soft)";
+  if (value === "Entregado") return "var(--entregado-soft)";
+  if (value === "Cargado") return "var(--cargado-soft)";
+  if (value === "En planta") return "var(--en-planta-soft)";
+  return "var(--neutral-soft)";
 }
 
 function StatusSelect({
@@ -249,11 +269,14 @@ export function PedidoCard({
   ) => void;
   onUpdateCliente: (clienteId: string, patch: ClientePatch) => void;
 }) {
+  const allListoOrEmpty = cliente.panes.length > 0 && cliente.panes.every((item) => item.empaque === "Listo");
+
   return (
     <section
       className={`flex flex-col border border-hairline bg-cardback break-inside-avoid ${
         dense ? "gap-3 rounded-2xl p-[18px]" : "gap-4 rounded-xl p-5"
       }`}
+      style={allListoOrEmpty ? { backgroundColor: "var(--listo-soft)" } : undefined}
     >
       <header className="flex flex-wrap items-center justify-between gap-2">
         <h3
@@ -281,6 +304,8 @@ export function PedidoCard({
             value={cliente.chofer}
             options={selectOptions(CHOFERES, cliente.chofer)}
             dense={dense}
+            colorVar={choferColor(cliente.chofer)}
+            bgColor={choferBackgroundColor(cliente.chofer)}
             onChange={(chofer) => onUpdateCliente(cliente.id, { chofer })}
           />
           <StatusSelect
