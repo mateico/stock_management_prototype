@@ -38,7 +38,7 @@ export function PedidoList({
   }
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(480px,1fr))] gap-4">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(480px,100%),1fr))] gap-4">
       {clientes.map((cliente) => (
         <PedidoCard
           key={cliente.id}
