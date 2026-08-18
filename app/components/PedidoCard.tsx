@@ -19,8 +19,18 @@ function empaqueColor(value: string): string {
   return "var(--neutral)";
 }
 
+function empaqueBackgroundColor(value: string): string {
+  if (value === "Fin" || value === "Listo") return "var(--good-soft)";
+  if (value === "Produccion" || value === "En Proceso") return "var(--warning-soft)";
+  return "var(--neutral-soft)";
+}
+
 function distribucionColor(value: string): string {
   return value === "Entregado" ? "var(--good)" : "var(--neutral)";
+}
+
+function distribucionBackgroundColor(value: string): string {
+  return value === "Entregado" ? "var(--good-soft)" : "var(--neutral-soft)";
 }
 
 function StatusSelect({
@@ -29,6 +39,7 @@ function StatusSelect({
   options,
   dense,
   colorVar,
+  bgColor,
   onChange,
 }: {
   label: string;
@@ -36,6 +47,7 @@ function StatusSelect({
   options: string[];
   dense: boolean;
   colorVar?: string;
+  bgColor?: string;
   onChange: (value: string) => void;
 }) {
   return (
@@ -43,7 +55,7 @@ function StatusSelect({
       aria-label={label}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      style={colorVar ? { borderColor: colorVar, color: colorVar } : undefined}
+      style={colorVar ? { borderColor: colorVar, color: colorVar, backgroundColor: bgColor } : undefined}
       className={`appearance-none rounded-full border bg-transparent text-center font-medium whitespace-nowrap [text-align-last:center] focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none ${
         dense ? "px-3 py-[3px] text-[16.5px]" : "px-2.5 py-1 text-xs"
       } ${colorVar ? "" : "border-hairline text-ink-secondary"}`}
@@ -212,6 +224,7 @@ function PanItemRow({
         options={selectOptions(EMPAQUES, item.empaque)}
         dense={dense}
         colorVar={empaqueColor(item.empaque)}
+        bgColor={empaqueBackgroundColor(item.empaque)}
         onChange={(empaque) => onCommit({ empaque })}
       />
     </div>
@@ -276,6 +289,7 @@ export function PedidoCard({
             options={selectOptions(DISTRIBUCIONES, cliente.distribucion)}
             dense={dense}
             colorVar={distribucionColor(cliente.distribucion)}
+            bgColor={distribucionBackgroundColor(cliente.distribucion)}
             onChange={(distribucion) =>
               onUpdateCliente(cliente.id, { distribucion })
             }
